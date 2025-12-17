@@ -1,5 +1,6 @@
+// [file name]: main.dart
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,26 +12,23 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'E-Learning',
       theme: ThemeData(
-        primaryColor: Color(0xFF6C63FF),
+        primaryColor: const Color(0xFF6C63FF),
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.blue,
-          accentColor: Color(0xFF6C63FF),
+          accentColor: const Color(0xFF6C63FF),
         ),
         fontFamily: 'Roboto',
       ),
-      home: HomeScreen(),
+      home: const LoginScreen(), // Đổi từ HomeScreen() thành LoginScreen()
       debugShowCheckedModeBanner: false,
-      // Thêm debug để kiểm tra overflow
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaleFactor: 1.0, // Giữ nguyên kích thước text
+            textScaleFactor: 1.0,
           ),
           child: child!,
         );
       },
     );
   }
-
-  
 }

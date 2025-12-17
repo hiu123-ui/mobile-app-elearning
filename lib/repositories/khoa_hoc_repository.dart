@@ -1,9 +1,11 @@
+// [file name]: repositories/khoa_hoc_repository.dart
 import '../models/khoa_hoc_model.dart';
 import '../services/api_service.dart';
 import '../models/danh_muc_model.dart';
+
 class KhoaHocRepository {
-  // Lấy danh sách danh mục khóa học
- Future<List<DanhMucModel>> getDanhSachDanhMuc({
+  // Lấy danh sách danh mục khóa học (giữ nguyên)
+  Future<List<DanhMucModel>> getDanhSachDanhMuc({
     String? tenDanhMuc,
   }) async {
     try {
@@ -17,7 +19,7 @@ class KhoaHocRepository {
     }
   }
   
-  // Lấy danh sách khóa học
+  // Lấy danh sách khóa học (giữ nguyên)
   Future<List<KhoaHocModel>> getDanhSachKhoaHoc({
     String? tenKhoaHoc,
     String maNhom = 'GP01',
@@ -28,7 +30,6 @@ class KhoaHocRepository {
         maNhom: maNhom,
       );
       
-      // Chuyển đổi dữ liệu từ API sang model
       return data.map<KhoaHocModel>((item) {
         return KhoaHocModel.fromJson(item);
       }).toList();
@@ -38,7 +39,23 @@ class KhoaHocRepository {
     }
   }
 
-
-
-
+  // Lấy khóa học theo danh mục - PHƯƠNG THỨC MỚI
+  Future<List<KhoaHocModel>> getKhoaHocTheoDanhMuc({
+    required String maDanhMuc,
+    String maNhom = 'GP01',
+  }) async {
+    try {
+      final data = await ApiService.layKhoaHocTheoDanhMuc(
+        maDanhMuc: maDanhMuc,
+        maNhom: maNhom,
+      );
+      
+      return data.map<KhoaHocModel>((item) {
+        return KhoaHocModel.fromJson(item);
+      }).toList();
+    } catch (e) {
+      print('Repository Error (KhoaHocTheoDanhMuc): $e');
+      rethrow;
+    }
+  }
 }
