@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../repositories/khoa_hoc_repository.dart';
 import '../models/khoa_hoc_model.dart';
 import '../widgets/khoa_hoc_card.dart';
-
+import 'courses_screen.dart';        // <-- Thêm dòng này
+import 'course_detail_screen.dart';   // <-- Thêm dòng này (nếu chưa có)
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -59,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'icon': Icons.storage_rounded,
       'color': Color(0xFF4CAF50),
       'image':
-          'https://tse1.mm.bing.net/th/id/OIP.YG_w4PSF4z_gtB8J1m_L0wHaFj?pid=Api&P=0&h=220',
+          'https://canhme.com/wp-content/uploads/2018/09/Nodejs.png',
     },
     'fullstack': {
       'title': 'Lập Trình Fullstack',
@@ -679,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 _buildFooterItem(Icons.phone, '1900 1234'),
                 const SizedBox(height: 16),
-                _buildFooterItem(Icons.location_on, 'Hà Nội, Việt Nam'),
+                _buildFooterItem(Icons.location_on, 'Nhóm 4'),
               ],
             ),
             const SizedBox(height: 24),
@@ -716,7 +717,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Bản quyền
             const Text(
-              '© 2024 E-Learning. Tất cả các quyền được bảo lưu.',
+              '© 2025 E-Learning. Tất cả các quyền được bảo lưu.',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.white70,
@@ -869,6 +870,14 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       selectedItemColor: const Color(0xFF6C63FF),
       unselectedItemColor: Colors.grey[600],
+      // THÊM onTap ĐỂ ĐIỀU HƯỚNG
+      onTap: (index) {
+        if (index == 1) {
+          // Tab "Khóa học" (index = 1)
+          Navigator.pushNamed(context, '/courses');
+        }
+        // Các tab khác có thể thêm sau (Danh mục, Blog, Tài khoản...)
+      },
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_outlined),

@@ -47,29 +47,21 @@ class LoginRequest {
   final String taiKhoan;
   final String matKhau;
 
-  LoginRequest({
-    required this.taiKhoan,
-    required this.matKhau,
-  });
+  LoginRequest({required this.taiKhoan, required this.matKhau});
 
   Map<String, dynamic> toJson() {
-    return {
-      'taiKhoan': taiKhoan,
-      'matKhau': matKhau,
-    };
+    return {'taiKhoan': taiKhoan, 'matKhau': matKhau};
   }
-
-
-  
 }
-// [file name]: models/user_model.dart
+
+// đăng ki
 class RegisterRequest {
-  final String taiKhoan;    // "askRoom" trong hình ảnh
-  final String matKhau;     // "maskRoom" trong hình ảnh
-  final String hoTen;       // "hofen" trong hình ảnh
-  final String soDT;        // "support" trong hình ảnh
-  final String email;       // "email"
-  final String maNhom;      // "sashroom" trong hình ảnh
+  final String taiKhoan; // "askRoom" trong hình ảnh
+  final String matKhau; // "maskRoom" trong hình ảnh
+  final String hoTen; // "hofen" trong hình ảnh
+  final String soDT; // "support" trong hình ảnh
+  final String email; // "email"
+  final String maNhom; // "sashroom" trong hình ảnh
 
   RegisterRequest({
     required this.taiKhoan,
