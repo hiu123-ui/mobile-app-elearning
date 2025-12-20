@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/danh_muc_model.dart';
+import '../models/khoa_hoc_model.dart';
 import '../models/user_model.dart';
 
 class ApiService {
@@ -142,6 +143,42 @@ class ApiService {
     } catch (e) {
       print('Lỗi API layKhoaHocTheoDanhMuc: $e');
       return [];
+    }
+  }
+
+  static Future<KhoaHocModel?> layThongTinKhoaHoc({
+    required String maKhoaHoc,
+  }) async {
+    try {
+      final url = Uri.parse('$_baseUrl/QuanLyKhoaHoc/LayThongTinKhoaHoc?maKhoaHoc=$maKhoaHoc');
+      final response = await http.get(url, headers: _headers);
+      print('URL LayThongTinKhoaHoc: $url');
+      print('Status: ${response.statusCode}');
+      print('Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        Map<String, dynamic>? data;
+        if (jsonResponse is Map && jsonResponse.containsKey('data')) {
+          final v = jsonResponse['data'];
+          if (v is Map) data = Map<String, dynamic>.from(v);
+        } else if (jsonResponse is Map && jsonResponse.containsKey('content')) {
+          final v = jsonResponse['content'];
+          if (v is Map) data = Map<String, dynamic>.from(v);
+        } else if (jsonResponse is Map) {
+          data = Map<String, dynamic>.from(jsonResponse);
+        }
+        if (data != null) {
+          return KhoaHocModel.fromJson(data);
+        }
+        return null;
+      } else {
+        print('Lỗi ${response.statusCode}: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Lỗi API layThongTinKhoaHoc: $e');
+      return null;
     }
   }
 

@@ -1,6 +1,7 @@
 // [file name]: screens/course_detail_screen.dart
 import 'package:flutter/material.dart';
 import '../models/khoa_hoc_model.dart';
+import '../services/api_service.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final KhoaHocModel khoaHoc;
@@ -16,9 +17,30 @@ class CourseDetailScreen extends StatefulWidget {
 
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
   bool _isBookmarked = false;
+  KhoaHocModel? _detail;
+  bool _loadingDetail = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDetail();
+  }
+
+  Future<void> _loadDetail() async {
+    setState(() {
+      _loadingDetail = true;
+    });
+    final res = await ApiService.layThongTinKhoaHoc(maKhoaHoc: widget.khoaHoc.maKhoaHoc);
+    if (!mounted) return;
+    setState(() {
+      _detail = res ?? _detail;
+      _loadingDetail = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final course = _detail ?? widget.khoaHoc;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -30,9 +52,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 fit: StackFit.expand,
                 children: [
                   // Ảnh nền khóa học
-                  widget.khoaHoc.hinhAnh.isNotEmpty
+                  course.hinhAnh.isNotEmpty
                       ? Image.network(
-                          widget.khoaHoc.hinhAnh,
+                          course.hinhAnh,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return _buildPlaceholderImage();
@@ -55,7 +77,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 ],
               ),
               title: Text(
-                widget.khoaHoc.tenKhoaHoc,
+                course.tenKhoaHoc,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -113,9 +135,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                         child: Row(
                           children: [
                             const Icon(Icons.star, size: 16, color: Colors.amber),
-                            const SizedBox(width: 4),
-                            Text(
-                              widget.khoaHoc.danhGia,
+                      const SizedBox(width: 4),
+                      Text(
+                              course.danhGia,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
@@ -141,7 +163,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             const Icon(Icons.people, size: 16, color: Colors.blue),
                             const SizedBox(width: 4),
                             Text(
-                              '${widget.khoaHoc.soLuongHocVien} học viên',
+                              '${course.soLuongHocVien} học viên',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black87,
@@ -165,7 +187,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    widget.khoaHoc.moTa,
+                    course.moTa,
                     style: const TextStyle(
                       fontSize: 16,
                       height: 1.5,
@@ -211,7 +233,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.khoaHoc.getTenNguoiTao(),
+                                course.getTenNguoiTao(),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -247,22 +269,22 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   _buildInfoItem(
                     Icons.video_library,
                     'Thời lượng',
-                    widget.khoaHoc.thoiLuong,
+                    course.thoiLuong,
                   ),
                   _buildInfoItem(
                     Icons.date_range,
                     'Ngày tạo',
-                    widget.khoaHoc.ngayTao,
+                    course.ngayTao,
                   ),
                   _buildInfoItem(
                     Icons.remove_red_eye,
                     'Lượt xem',
-                    widget.khoaHoc.luotXem,
+                    course.luotXem,
                   ),
                   _buildInfoItem(
                     Icons.group,
                     'Mã nhóm',
-                    widget.khoaHoc.maNhom,
+                    course.maNhom,
                   ),
                 ],
               ),
@@ -281,7 +303,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Đã đăng ký khóa học "${widget.khoaHoc.tenKhoaHoc}"'),
+                    content: Text('Đã đăng ký khóa học "${course.tenKhoaHoc}"'),
                     backgroundColor: Colors.green,
                   ),
                 );

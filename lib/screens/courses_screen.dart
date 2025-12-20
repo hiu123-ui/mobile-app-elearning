@@ -8,7 +8,8 @@ import '../widgets/khoa_hoc_card.dart';
 import './course_detail_screen.dart';
 
 class CoursesScreen extends StatefulWidget {
-  const CoursesScreen({super.key});
+  final String? initialCategoryName;
+  const CoursesScreen({super.key, this.initialCategoryName});
 
   @override
   State<CoursesScreen> createState() => _CoursesScreenState();
@@ -42,19 +43,21 @@ class _CoursesScreenState extends State<CoursesScreen> {
     String? url;
     if (_selectedCategoryIndex > 0 && _selectedCategoryIndex - 1 < _danhMucList.length) {
       final cat = _danhMucList[_selectedCategoryIndex - 1].tenDanhMuc.toLowerCase();
-      if (cat.contains('frontend')) url = _imageByCategory['frontend'];
-      if (cat.contains('backend')) url = _imageByCategory['backend'];
-      if (cat.contains('fullstack')) url = _imageByCategory['fullstack'];
-      if (cat.contains('di động') || cat.contains('didong') || cat.contains('mobile')) {
+      final catNorm = cat.replaceAll(' ', '');
+      if (catNorm.contains('frontend')) url = _imageByCategory['frontend'];
+      if (catNorm.contains('backend')) url = _imageByCategory['backend'];
+      if (catNorm.contains('fullstack')) url = _imageByCategory['fullstack'];
+      if (cat.contains('di động') || cat.contains('di dong') || catNorm.contains('didong') || cat.contains('mobile')) {
         url = _imageByCategory['didong'];
       }
     }
     if (url == null) {
       final s = ('${c.tenKhoaHoc} ${c.moTa}').toLowerCase();
-      if (s.contains('frontend')) url = _imageByCategory['frontend'];
-      if (s.contains('backend')) url = _imageByCategory['backend'];
-      if (s.contains('fullstack')) url = _imageByCategory['fullstack'];
-      if (s.contains('di động') || s.contains('didong') || s.contains('mobile')) {
+      final sNorm = s.replaceAll(' ', '');
+      if (sNorm.contains('frontend')) url = _imageByCategory['frontend'];
+      if (sNorm.contains('backend')) url = _imageByCategory['backend'];
+      if (sNorm.contains('fullstack')) url = _imageByCategory['fullstack'];
+      if (s.contains('di động') || s.contains('di dong') || sNorm.contains('didong') || s.contains('mobile')) {
         url = _imageByCategory['didong'];
       }
     }
@@ -86,6 +89,25 @@ class _CoursesScreenState extends State<CoursesScreen> {
         _filteredCourses = courses;
         _isLoading = false;
       });
+      // Chọn danh mục ban đầu nếu được truyền từ màn hình trước
+      if (widget.initialCategoryName != null && widget.initialCategoryName!.trim().isNotEmpty) {
+        final kw = widget.initialCategoryName!.toLowerCase();
+        final kwNoSpace = kw.replaceAll(' ', '');
+        int idx = _danhMucList.indexWhere((dm) {
+          final name = dm.tenDanhMuc.toLowerCase();
+          final nameNoSpace = name.replaceAll(' ', '');
+          final isDiDongKw = kwNoSpace.contains('didong') || kw.contains('di động') || kw.contains('mobile');
+          return name.contains(kw) ||
+                 nameNoSpace.contains(kwNoSpace) ||
+                 (isDiDongKw && (name.contains('di động') || name.contains('di dong') || name.contains('mobile')));
+        });
+        if (idx != -1) {
+          setState(() {
+            _selectedCategoryIndex = idx + 1;
+          });
+          _loadCoursesByCategory(_danhMucList[idx].maDanhMuc);
+        }
+      }
     } catch (e) {
       setState(() {
         _errorMessage = 'Không thể tải dữ liệu. Vui lòng thử lại!';

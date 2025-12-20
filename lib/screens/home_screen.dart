@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final KhoaHocRepository _repository = KhoaHocRepository();
   List<KhoaHocModel> _danhSachKhoaHoc = [];
+  List<KhoaHocModel> _filteredHomeCourses = [];
   bool _isLoading = true;
   String _errorMessage = '';
 
@@ -32,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final khoaHocList = await _repository.getDanhSachKhoaHoc();
       setState(() {
         _danhSachKhoaHoc = khoaHocList;
+        _filteredHomeCourses = khoaHocList;
         _isLoading = false;
       });
     } catch (e) {
@@ -120,70 +122,77 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCategoryCard(String key) {
     final data = _categoryData[key]!;
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      height: 180,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        image: DecorationImage(
-          image: NetworkImage(data['image']),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.45),
-            BlendMode.darken,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CoursesScreen(initialCategoryName: key),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        height: 180,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          image: DecorationImage(
+            image: NetworkImage(data['image']),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.45),
+              BlendMode.darken,
+            ),
           ),
         ),
-      ),
-      child: Stack(
-        children: [
-          // Icon
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: data['color'].withOpacity(0.9),
-                borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 20,
+              left: 20,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: data['color'].withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(data['icon'], color: Colors.white, size: 36),
               ),
-              child: Icon(data['icon'], color: Colors.white, size: 36),
             ),
-          ),
-          // Nội dung
-          Positioned(
-            bottom: 20,
-            left: 20,
-            right: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  data['title'],
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data['title'],
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  data['subtitle'],
-                  style: const TextStyle(fontSize: 14, color: Colors.white),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    data['subtitle'],
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Mũi tên
-          const Positioned(
-            top: 20,
-            right: 20,
-            child: Icon(Icons.arrow_forward_ios, color: Colors.white, size: 28),
-          ),
-        ],
+            const Positioned(
+              top: 20,
+              right: 20,
+              child: Icon(Icons.arrow_forward_ios, color: Colors.white, size: 28),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -215,10 +224,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(width: 8),
             ],
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(70),
-              child: _buildSearchBar(),
-            ),
           ),
 
           SliverToBoxAdapter(child: _buildHeroSection()),
@@ -267,27 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: 'Tìm kiếm khóa học...',
-            hintStyle: TextStyle(color: Colors.grey[600]),
-            prefixIcon: const Icon(Icons.search, color: Color(0xFF6C63FF)),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(vertical: 15),
-          ),
-        ),
-      ),
-    );
-  }
+  
 
   Widget _buildHeroSection() {
     return Container(
@@ -685,44 +670,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Liên kết nhanh - Sửa theo hình (2 cột)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Cột 1
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Trang chủ', style: TextStyle(color: Colors.white)),
-                    SizedBox(height: 8),
-                    Text('Khóa học', style: TextStyle(color: Colors.white)),
-                    SizedBox(height: 8),
-                    Text('Giảng viên', style: TextStyle(color: Colors.white)),
-                    SizedBox(height: 8),
-                    Text('Blog', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-                // Cột 2
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text('Về chúng tôi', style: TextStyle(color: Colors.white)),
-                    SizedBox(height: 8),
-                    Text('Liên hệ', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Bản quyền
-            const Text(
-              '© 2025 E-Learning. Tất cả các quyền được bảo lưu.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.white70,
-              ),
-            ),
           ],
         ),
       ),
@@ -793,13 +740,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: _danhSachKhoaHoc.length,
+        itemCount: _filteredHomeCourses.length,
         itemBuilder: (context, index) {
-          final khoaHoc = _danhSachKhoaHoc[index];
+          final khoaHoc = _filteredHomeCourses[index];
           return Container(
             width: 240,
             margin: EdgeInsets.only(
-              right: index < _danhSachKhoaHoc.length - 1 ? 16 : 0,
+              right: index < _filteredHomeCourses.length - 1 ? 16 : 0,
             ),
             child: KhoaHocCard(
               khoaHoc: khoaHoc,
@@ -908,64 +855,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void _showCourseDetail(KhoaHocModel khoaHoc) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-      ),
-      builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.6,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 60,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      khoaHoc.tenKhoaHoc ?? 'Không có tiêu đề',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      khoaHoc.moTa ?? 'Không có mô tả',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
+    Navigator.pushNamed(context, '/course-detail', arguments: khoaHoc);
   }
 }
