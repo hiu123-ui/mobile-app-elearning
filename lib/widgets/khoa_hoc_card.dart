@@ -6,12 +6,22 @@ class KhoaHocCard extends StatelessWidget {
   final KhoaHocModel khoaHoc;
   final VoidCallback onTap;
   final String? imageUrl;
+  final bool registered;
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
+  final String? primaryLabel;
+  final Color? primaryColor;
 
   const KhoaHocCard({
     super.key,
     required this.khoaHoc,
     required this.onTap,
     this.imageUrl,
+    this.registered = false,
+    this.secondaryLabel,
+    this.onSecondary,
+    this.primaryLabel,
+    this.primaryColor,
   });
 
   static const String _fallbackImageUrl =
@@ -27,9 +37,9 @@ class KhoaHocCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: registered ? null : onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -45,14 +55,11 @@ class KhoaHocCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildImageSection(),
-
-            // === BỎ Expanded + Spacer + SizedBox thừa → loại bỏ khoảng trắng và overflow ===
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tiêu đề
                   Text(
                     khoaHoc.tenKhoaHoc,
                     style: const TextStyle(
@@ -64,27 +71,24 @@ class KhoaHocCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 3), // Giảm mạnh
 
-                  // Mô tả
                   Text(
                     khoaHoc.moTa,
                     style: TextStyle(
                       fontSize: 12.5,
                       color: Colors.grey[700],
-                      height: 1.35,
+                      height: 1.3,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6), // Giảm để sát rating hơn
 
-                  // Rating + số học viên
                   _buildRatingAndStudents(),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 10), // Khoảng cách vừa đủ trước button
 
-                  // Nút Xem Chi Tiết - full width, sát đáy
-                  _buildDetailButton(),
+                  _buildActionButtons(),
                 ],
               ),
             ),
@@ -103,7 +107,6 @@ class KhoaHocCard extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Container(
               width: double.infinity,
-              color: Colors.white,
               child: Builder(
                 builder: (context) {
                   final primaryUrl = _normalizeUrl(
@@ -113,7 +116,7 @@ class KhoaHocCard extends StatelessWidget {
                   );
                   return Image.network(
                     primaryUrl,
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover,
                     alignment: Alignment.center,
                     filterQuality: FilterQuality.high,
                     headers: const {'User-Agent': 'Mozilla/5.0 (Flutter)'},
@@ -121,7 +124,7 @@ class KhoaHocCard extends StatelessWidget {
                       if (primaryUrl != _fallbackImageUrl) {
                         return Image.network(
                           _fallbackImageUrl,
-                          fit: BoxFit.contain,
+                          fit: BoxFit.cover,
                           alignment: Alignment.center,
                           filterQuality: FilterQuality.high,
                           headers: const {'User-Agent': 'Mozilla/5.0 (Flutter)'},
@@ -146,18 +149,16 @@ class KhoaHocCard extends StatelessWidget {
               ),
             ),
           ),
-          // Gradient overlay
           Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Colors.black.withOpacity(0.1)],
+                colors: [Colors.transparent, Colors.black.withOpacity(0.15)],
               ),
             ),
           ),
-          // Badge
           Positioned(
             top: 10,
             left: 10,
@@ -172,7 +173,7 @@ class KhoaHocCard extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Giảm padding để nhỏ gọn hơn
           decoration: BoxDecoration(
             color: Colors.amber.withOpacity(0.12),
             borderRadius: BorderRadius.circular(8),
@@ -180,12 +181,12 @@ class KhoaHocCard extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.star, size: 15, color: Colors.amber),
-              const SizedBox(width: 4),
+              const Icon(Icons.star, size: 14, color: Colors.amber), // Giảm size icon nhẹ
+              const SizedBox(width: 3),
               Text(
                 khoaHoc.danhGia,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 12.5,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF1A1A1A),
                 ),
@@ -193,17 +194,17 @@ class KhoaHocCard extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 10),
         Expanded(
           child: Row(
             children: [
-              Icon(Icons.people_outline, size: 15, color: Colors.grey[600]),
-              const SizedBox(width: 4),
+              Icon(Icons.people_outline, size: 14, color: Colors.grey[600]),
+              const SizedBox(width: 3),
               Flexible(
                 child: Text(
                   '${khoaHoc.soLuongHocVien} học viên',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12.5,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w500,
                   ),
@@ -217,24 +218,70 @@ class KhoaHocCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailButton() {
+  Widget _buildActionButtons() {
+    if (registered) {
+      return Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 36,
+              child: ElevatedButton(
+                onPressed: null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEEEEEE),
+                  foregroundColor: const Color(0xFF616161),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  elevation: 1,
+                ),
+                child: Text(
+                  primaryLabel ?? 'Đã đăng ký',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: SizedBox(
+              height: 36,
+              child: OutlinedButton(
+                onPressed: onSecondary,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                ),
+                child: Text(secondaryLabel ?? 'Xóa'),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return SizedBox(
-      height: 44,
+      height: 40,
       width: double.infinity,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6C63FF),
+          backgroundColor: primaryColor ?? const Color(0xFF6C63FF),
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
           ),
           elevation: 2,
-          shadowColor: const Color(0xFF6C63FF).withOpacity(0.3),
+          shadowColor: (primaryColor ?? const Color(0xFF6C63FF)).withOpacity(0.3),
         ),
-        child: const Text(
-          'Xem Chi Tiết',
-          style: TextStyle(
+        child: Text(
+          primaryLabel ?? 'Xem Chi Tiết',
+          style: const TextStyle(
             fontSize: 14.5,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.2,
@@ -269,8 +316,8 @@ class KhoaHocCard extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
         ),
-        child: const Center(
-          child: Icon(Icons.school, size: 18, color: Colors.white),
+        child: Center(
+          child: Icon(registered ? Icons.verified : Icons.school, size: 18, color: Colors.white),
         ),
       ),
     );

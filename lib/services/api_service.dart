@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/danh_muc_model.dart';
 import '../models/khoa_hoc_model.dart';
 import '../models/user_model.dart';
+import 'auth_service.dart';
 
 class ApiService {
   static const String _baseUrl = 'https://elearningnew.cybersoft.edu.vn/api';
@@ -182,6 +183,132 @@ class ApiService {
     }
   }
 
+  // Đăng ký khóa học cho tài khoản hiện tại
+  static Future<bool> dangKyKhoaHoc({
+    required String maKhoaHoc,
+    required String taiKhoan,
+  }) async {
+    try {
+      final token = await AuthService.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Chưa đăng nhập');
+      }
+
+      final url = Uri.parse('$_baseUrl/QuanLyKhoaHoc/DangKyKhoaHoc');
+      final body = jsonEncode({
+        'maKhoaHoc': maKhoaHoc,
+        'taiKhoan': taiKhoan,
+      });
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+          'TokenCybersoft': _tokenCybersoft,
+        },
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        final msg = response.body.isNotEmpty ? response.body : 'Đăng ký thất bại';
+        throw Exception('Lỗi ${response.statusCode}: $msg');
+      }
+    } catch (e) {
+      print('Lỗi API dangKyKhoaHoc: $e');
+      rethrow;
+    }
+  }
+
+  // Hủy ghi danh khóa học cho tài khoản hiện tại
+  static Future<bool> huyDangKyKhoaHoc({
+    required String maKhoaHoc,
+    required String taiKhoan,
+  }) async {
+    try {
+      final token = await AuthService.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Chưa đăng nhập');
+      }
+
+      final url = Uri.parse('$_baseUrl/QuanLyKhoaHoc/HuyGhiDanh');
+      final body = jsonEncode({
+        'maKhoaHoc': maKhoaHoc,
+        'taiKhoan': taiKhoan,
+      });
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+          'TokenCybersoft': _tokenCybersoft,
+        },
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        final msg = response.body.isNotEmpty ? response.body : 'Hủy ghi danh thất bại';
+        throw Exception('Lỗi ${response.statusCode}: $msg');
+      }
+    } catch (e) {
+      print('Lỗi API huyDangKyKhoaHoc: $e');
+      rethrow;
+    }
+  }
+
+  // Lấy thông tin tài khoản (bao gồm danh sách khóa học đã ghi danh)
+  static Future<List<KhoaHocModel>> layKhoaHocGhiDanhCuaTaiKhoan() async {
+    try {
+      final token = await AuthService.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Chưa đăng nhập');
+      }
+
+      final url = Uri.parse('$_baseUrl/QuanLyNguoiDung/ThongTinTaiKhoan');
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'TokenCybersoft': _tokenCybersoft,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List list = (data is Map && data['chiTietKhoaHocGhiDanh'] is List)
+            ? data['chiTietKhoaHocGhiDanh'] as List
+            : [];
+        return list.map<KhoaHocModel>((item) {
+          final m = Map<String, dynamic>.from(item as Map);
+          return KhoaHocModel(
+            maKhoaHoc: m['maKhoaHoc']?.toString() ?? '',
+            tenKhoaHoc: m['tenKhoaHoc']?.toString() ?? 'Không có tên',
+            moTa: m['moTa']?.toString() ?? '',
+            hinhAnh: m['hinhAnh']?.toString() ?? '',
+            luotXem: '0',
+            nguoiTao: m['tenNguoiTao']?.toString() ?? 'Ẩn danh',
+            maNhom: m['maNhom']?.toString() ?? 'GP01',
+            soLuongHocVien: '0',
+            ngayTao: m['ngayTao']?.toString() ?? '',
+            danhGia: '0',
+            thoiLuong: '0',
+          );
+        }).toList();
+      } else {
+        throw Exception('Lỗi ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      print('Lỗi API layKhoaHocGhiDanhCuaTaiKhoan: $e');
+      return [];
+    }
+  }
+
   // Phương thức đăng nhập - SỬA LẠI ĐỂ HOẠT ĐỘNG ỔN ĐỊNH
   static Future<UserModel?> dangNhap({
     required String taiKhoan,
@@ -210,34 +337,132 @@ class ApiService {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
 
-        // Cybersoft thường trả về user object trực tiếp (không bọc trong data/content)
         if (jsonResponse is Map<String, dynamic>) {
-          // Kiểm tra nếu có accessToken hoặc các field user
-          if (jsonResponse.containsKey('accessToken') || jsonResponse.containsKey('taiKhoan')) {
-            return UserModel.fromJson(jsonResponse);
+          if (jsonResponse.containsKey('accessToken')) {
+            final user = UserModel.fromJson(jsonResponse);
+            
+            // Lưu access token và user data
+            await AuthService.saveAccessToken(jsonResponse['accessToken']);
+            await AuthService.saveUserData(user);
+            
+            return user;
           } else {
-            print('Response không chứa dữ liệu user hợp lệ: $jsonResponse');
-            throw Exception('Đăng nhập thất bại: Dữ liệu không hợp lệ');
+            print('Response không chứa accessToken: $jsonResponse');
+            throw Exception('Đăng nhập thất bại: Không có accessToken');
           }
         } else {
           throw Exception('Dữ liệu trả về không đúng định dạng');
         }
       } else {
-        // Xử lý lỗi chi tiết hơn
         String errorMsg = 'Đăng nhập thất bại (mã ${response.statusCode})';
         try {
           final errorJson = jsonDecode(response.body);
           if (errorJson is Map && errorJson.containsKey('message')) {
             errorMsg += ': ${errorJson['message']}';
-          } else if (errorJson is String) {
-            errorMsg += ': $errorJson';
           }
         } catch (_) {}
         throw Exception(errorMsg);
       }
     } catch (e) {
       print('Lỗi API dangNhap: $e');
-      rethrow; // Rethrow để UI xử lý (hiển thị thông báo)
+      rethrow;
+    }
+  }
+
+  // Thêm phương thức lấy headers có authorization
+  static Future<Map<String, String>> getHeadersWithAuth() async {
+    final token = await AuthService.getAccessToken();
+    final headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'TokenCybersoft': _tokenCybersoft,
+      'Accept': 'application/json',
+    };
+    
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    
+    return headers;
+  }
+
+  // Ví dụ API cần authorization
+  static Future<Map<String, dynamic>> layThongTinNguoiDung() async {
+    try {
+      final token = await AuthService.getAccessToken();
+      if (token == null) {
+        throw Exception('Chưa đăng nhập');
+      }
+
+      final url = Uri.parse('$_baseUrl/QuanLyNguoiDung/ThongTinNguoiDung');
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'TokenCybersoft': _tokenCybersoft,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Lỗi ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      print('Lỗi API layThongTinNguoiDung: $e');
+      rethrow;
+    }
+  }
+
+  // Cập nhật thông tin người dùng
+  static Future<bool> capNhatThongTinNguoiDung({
+    required String taiKhoan,
+    required String hoTen,
+    required String email,
+    required String soDT,
+    String? maNhom,
+    String? maLoaiNguoiDung,
+    String? matKhau,
+  }) async {
+    try {
+      final token = await AuthService.getAccessToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Chưa đăng nhập');
+      }
+
+      final url = Uri.parse('$_baseUrl/QuanLyNguoiDung/CapNhatThongTinNguoiDung');
+      final Map<String, dynamic> payload = {
+        'taiKhoan': taiKhoan,
+        'hoTen': hoTen,
+        'email': email,
+        'soDT': soDT,
+        'maNhom': maNhom ?? 'GP01',
+        'maLoaiNguoiDung': maLoaiNguoiDung ?? 'HV',
+      };
+      if (matKhau != null && matKhau.trim().isNotEmpty) {
+        payload['matKhau'] = matKhau.trim();
+      }
+      final body = jsonEncode(payload);
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'TokenCybersoft': _tokenCybersoft,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Lỗi ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      print('Lỗi API capNhatThongTinNguoiDung: $e');
+      rethrow;
     }
   }
 

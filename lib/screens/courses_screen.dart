@@ -538,7 +538,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
         } else if (index == 3) {
           // TODO: Điều hướng đến blog
         } else if (index == 4) {
-          // TODO: Điều hướng đến tài khoản
+          Navigator.pushNamed(context, '/account');
         }
       },
       items: const [

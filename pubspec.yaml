@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   http: ^1.6.0  # Thêm package http để gọi API
+  shared_preferences: ^2.5.4 # Thêm package shared_preferences để lưu trữ dữ liệu cục bộ
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:

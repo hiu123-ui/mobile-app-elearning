@@ -4,6 +4,8 @@ import '../repositories/auth_repository.dart';
 import '../models/user_model.dart';
 import '../screens/home_screen.dart';
 import '../screens/register_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -35,26 +37,20 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final user = await _authRepository.dangNhap(
-        taiKhoan: _usernameController.text.trim(),
-        matKhau: _passwordController.text.trim(),
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final ok = await authProvider.login(
+        _usernameController.text.trim(),
+        _passwordController.text.trim(),
       );
-
-      // Đăng nhập thành công
-      print('Đăng nhập thành công!');
-      print('Tài khoản: ${user.taiKhoan}');
-      print('Họ tên: ${user.hoTen}');
-      print('Email: ${user.email}');
-      print('Token: ${user.accessToken}');
-
-      // TODO: Lưu token và user info (shared_preferences, secure storage...)
-      // _saveUserData(user);
-
-      // Chuyển đến màn hình chính
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-      );
+      if (!mounted) return;
+      if (ok) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        setState(() {
+          _errorMessage = authProvider.errorMessage?.replaceAll('Exception: ', '') ?? 'Đăng nhập thất bại';
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       print('Lỗi đăng nhập: $e');
       setState(() {

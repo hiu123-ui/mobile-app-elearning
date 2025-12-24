@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import '../models/khoa_hoc_model.dart';
 import '../services/api_service.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   final KhoaHocModel khoaHoc;
@@ -19,11 +21,13 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   bool _isBookmarked = false;
   KhoaHocModel? _detail;
   bool _loadingDetail = false;
+  bool _isRegistered = false;
 
   @override
   void initState() {
     super.initState();
     _loadDetail();
+    _checkRegistered();
   }
 
   Future<void> _loadDetail() async {
@@ -36,6 +40,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
       _detail = res ?? _detail;
       _loadingDetail = false;
     });
+  }
+
+  Future<void> _checkRegistered() async {
+    try {
+      final list = await ApiService.layKhoaHocGhiDanhCuaTaiKhoan();
+      final exists = list.any((c) => c.maKhoaHoc == widget.khoaHoc.maKhoaHoc);
+      if (!mounted) return;
+      setState(() {
+        _isRegistered = exists;
+      });
+    } catch (_) {}
   }
 
   @override
@@ -300,30 +315,61 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           child: SizedBox(
             height: 56,
             child: ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Đã đăng ký khóa học "${course.tenKhoaHoc}"'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+              onPressed: _isRegistered ? null : () async {
+                final auth = Provider.of<AuthProvider>(context, listen: false);
+                final user = auth.user;
+                if (user == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng đăng nhập để đăng ký')),
+                  );
+                  return;
+                }
+                try {
+                  await ApiService.dangKyKhoaHoc(
+                    maKhoaHoc: course.maKhoaHoc,
+                    taiKhoan: user.taiKhoan,
+                  );
+                  if (!mounted) return;
+                  setState(() {
+                    _isRegistered = true;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Đăng ký thành công: "${course.tenKhoaHoc}"'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                  Navigator.pushNamed(
+                    context,
+                    '/account',
+                    arguments: {
+                      'section': 'myCourses',
+                      'registered': true,
+                      'courseName': course.tenKhoaHoc,
+                    },
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Đăng ký thất bại: $e')),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C63FF),
+                backgroundColor: _isRegistered ? const Color(0xFF43A047) : const Color(0xFF6C63FF),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 2,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_checkout, size: 20),
-                  SizedBox(width: 10),
+                  const Icon(Icons.shopping_cart_checkout, size: 20),
+                  const SizedBox(width: 10),
                   Text(
-                    'ĐĂNG KÝ NGAY',
-                    style: TextStyle(
+                    _isRegistered ? 'ĐÃ ĐĂNG KÝ' : 'ĐĂNG KÝ NGAY',
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),

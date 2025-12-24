@@ -736,7 +736,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCoursesHorizontalList() {
     return SizedBox(
-      height: 340,
+      height: 280,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -760,7 +760,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildLoadingCourses() {
     return SizedBox(
-      height: 340,
+      height: 280,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -820,10 +820,10 @@ class _HomeScreenState extends State<HomeScreen> {
       // THÊM onTap ĐỂ ĐIỀU HƯỚNG
       onTap: (index) {
         if (index == 1) {
-          // Tab "Khóa học" (index = 1)
           Navigator.pushNamed(context, '/courses');
+        } else if (index == 4) {
+          Navigator.pushNamed(context, '/account');
         }
-        // Các tab khác có thể thêm sau (Danh mục, Blog, Tài khoản...)
       },
       items: const [
         BottomNavigationBarItem(
