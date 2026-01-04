@@ -1,4 +1,3 @@
-// [file name]: screens/register_screen.dart
 import 'package:flutter/material.dart';
 import '../repositories/auth_repository.dart';
 import 'login_screen.dart';
@@ -84,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
       }
     } catch (e) {
-      print('❌ Lỗi đăng ký: $e');
+      print('Lỗi đăng ký: $e');
       setState(() {
         _errorMessage = 'Đăng ký thất bại: ${e.toString().replaceAll('Exception: ', '')}';
         _isLoading = false;

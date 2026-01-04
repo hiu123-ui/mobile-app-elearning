@@ -1,4 +1,3 @@
-// [file name]: models/user_model.dart
 class UserModel {
   final String taiKhoan;
   final String hoTen;
@@ -56,12 +55,12 @@ class LoginRequest {
 
 // đăng ki
 class RegisterRequest {
-  final String taiKhoan; // "askRoom" trong hình ảnh
-  final String matKhau; // "maskRoom" trong hình ảnh
-  final String hoTen; // "hofen" trong hình ảnh
-  final String soDT; // "support" trong hình ảnh
-  final String email; // "email"
-  final String maNhom; // "sashroom" trong hình ảnh
+  final String taiKhoan; 
+  final String matKhau; 
+  final String hoTen;
+  final String soDT; 
+  final String email; 
+  final String maNhom; 
 
   RegisterRequest({
     required this.taiKhoan,

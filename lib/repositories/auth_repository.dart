@@ -1,9 +1,8 @@
-// [file name]: repositories/auth_repository.dart
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
 class AuthRepository {
-  // Đăng nhập - ĐÃ SỬA ĐỂ TƯƠNG THÍCH VỚI ApiService MỚI (trả về UserModel? nullable)
+  // Đăng nhập
   Future<UserModel> dangNhap({
     required String taiKhoan,
     required String matKhau,
@@ -22,7 +21,7 @@ class AuthRepository {
       return user;
     } catch (e) {
       print('Repository Error (dangNhap): $e');
-      // Chuyển lỗi thành thông báo thân thiện hơn cho UI
+      // Chuyển lỗi thành thông báo
       if (e is Exception) {
         rethrow; // Giữ nguyên exception để UI bắt và hiển thị
       } else {
@@ -31,8 +30,7 @@ class AuthRepository {
     }
   }
 
-  // Đăng ký
-   // Đăng ký - trả về Map thay vì String
+  // Đăng ký - trả về Map thay vì String
   Future<Map<String, dynamic>> dangKy({
     required String taiKhoan,
     required String matKhau,
@@ -52,7 +50,7 @@ class AuthRepository {
       );
       return result;
     } catch (e) {
-      print('❌ Repository Error (dangKy): $e');
+      print('Repository Error (dangKy): $e');
       rethrow;
     }
   }

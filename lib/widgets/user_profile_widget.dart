@@ -33,8 +33,8 @@ class UserProfileWidget extends StatelessWidget {
       child: Stack(
         children: [
           Positioned(
-            right: -4,
-            top: -4,
+            right: -14,
+            top: -14,
             child: IconButton(
               onPressed: () async {
                 final confirmed = await showDialog<bool>(

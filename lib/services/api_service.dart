@@ -1,4 +1,3 @@
-// [file name]: services/api_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/danh_muc_model.dart';
@@ -19,7 +18,7 @@ class ApiService {
     };
   }
 
-  // 1. Lấy danh sách danh mục khóa học (giữ nguyên, đã ổn định)
+  // 1. Lấy danh sách danh mục khóa học 
   static Future<List<DanhMucModel>> layDanhMucKhoaHoc({
     String? tenDanhMuc,
   }) async {
@@ -59,7 +58,7 @@ class ApiService {
     }
   }
 
-  // 2. Lấy danh sách khóa học (giữ nguyên)
+  // 2. Lấy danh sách khóa học 
   static Future<List<dynamic>> layDanhSachKhoaHoc({
     String? tenKhoaHoc,
     String maNhom = 'GP01',

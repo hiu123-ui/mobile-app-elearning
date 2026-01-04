@@ -6,6 +6,7 @@ import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/courses_screen.dart';
 import 'screens/course_detail_screen.dart';
+import 'screens/blog_screen.dart';
 import 'models/khoa_hoc_model.dart';
 import 'screens/account_screen.dart';
 
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
             }
             return AccountScreen(initialSection: section, registrationSuccess: registrationSuccess, registeredCourseName: courseName);
           },
+          '/blog': (context) => const BlogScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),
