@@ -626,7 +626,7 @@ class _AccountScreenState extends State<AccountScreen> {
         BottomNavigationBarItem(
           icon: Icon(Icons.rss_feed_outlined),
           activeIcon: Icon(Icons.rss_feed),
-          label: 'Blog',
+          label: 'Bài viết',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person_outline),

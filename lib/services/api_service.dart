@@ -485,8 +485,8 @@ class ApiService {
         'maNhom': maNhom,
       };
 
-      print('📝 Đăng ký URL: $url');
-      print('📝 Thông tin đăng ký: $registerRequest');
+      print(' Đăng ký URL: $url');
+      print(' Thông tin đăng ký: $registerRequest');
 
       final response = await http.post(
         url,
@@ -494,8 +494,8 @@ class ApiService {
         body: jsonEncode(registerRequest),
       );
 
-      print('📝 Response Status Code: ${response.statusCode}');
-      print('📝 Response Body: ${response.body}');
+      print(' Response Status Code: ${response.statusCode}');
+      print(' Response Body: ${response.body}');
 
       final jsonResponse = jsonDecode(response.body);
       
@@ -532,7 +532,7 @@ class ApiService {
         throw Exception(errorMessage);
       }
     } catch (e) {
-      print('❌ Lỗi API dangKy: $e');
+      print(' Lỗi API dangKy: $e');
       rethrow;
     }
   }

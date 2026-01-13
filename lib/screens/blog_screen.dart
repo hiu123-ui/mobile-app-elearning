@@ -39,8 +39,8 @@ class BlogScreen extends StatelessWidget {
         child: Column(
           children: [
             const HeaderWidget(
-              title: 'Hỏi đáp nhanh',
-              subtitle: 'Một số câu hỏi thường gặp khi học lập trình',
+              title: 'Bài Viết Hữu Ích',
+              subtitle: 'Một số bài viết hữu ích khi học lập trình',
               showBackButton: true,
             ),
             Expanded(
@@ -154,7 +154,7 @@ class BlogScreen extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(Icons.rss_feed_outlined),
             activeIcon: Icon(Icons.rss_feed),
-            label: 'Blog',
+            label: 'Bài viết',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
